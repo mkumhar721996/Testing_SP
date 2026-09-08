@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Defect Dashboard</title>
+<link rel="stylesheet" href="/design/tokens.css" />
+<link rel="stylesheet" href="/design/prototype-utils.css" />
+<link rel="stylesheet" href="/css/dashboard.css" />
+</head>
+<body>
+
+<main class="content">
+
+  <!-- Access denied (AC4) -->
+  <section class="screen" id="screen-access-denied" data-screen="access-denied" hidden>
+    <div class="access-denied-wrap">
+      <div class="access-denied-card">
+        <div class="icon">⛔</div>
+        <h2>You don't have access to this page</h2>
+        <p class="text-muted text-sm">The Defect Dashboard is available to <strong>Managers</strong> only. Your current role does not include dashboard access. Contact your administrator if you believe this is a mistake.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dashboard (AC1, AC5, AC6, AC7, AC9, AC10) -->
+  <section class="screen" id="screen-dashboard" data-screen="dashboard" hidden>
+    <div class="page-heading">
+      <div>
+        <h1>Defect Dashboard</h1>
+        <p class="text-muted text-sm">Read-only aggregate view. Click any bar or segment to drill into the underlying defects.</p>
+      </div>
+    </div>
+
+    <div class="panel-grid">
+      <div class="loading-veil" id="dashLoadingVeil">Loading dashboard…</div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Defect trend — last 30 days</h2>
+          <span class="panel-hint">Daily buckets · created vs. closed</span>
+        </div>
+        <div class="panel-body">
+          <div class="trend-legend">
+            <span><span class="dot created"></span> Created</span>
+            <span><span class="dot closed"></span> Closed</span>
+          </div>
+          <div class="trend-scroll" id="trendChartBody" role="img" aria-label="Defects created and closed per day for the last 30 days"></div>
+          <div class="empty-state" id="trendEmptyState" hidden><span class="empty-icon">📈</span><strong>No defects recorded yet</strong><span class="text-xs">Once defects are logged, daily trend bars will appear here.</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><h2>Severity breakdown</h2></div>
+        <div class="panel-body">
+          <div class="severity-list" id="severityChartBody"></div>
+          <div class="empty-state" id="severityEmptyState" hidden><span class="empty-icon">◫</span><strong>No defects to summarize</strong></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><h2>Status distribution</h2></div>
+        <div class="panel-body">
+          <div class="status-chart" id="statusChartBody"></div>
+          <div class="empty-state" id="statusEmptyState" hidden><span class="empty-icon">◫</span><strong>No defects to summarize</strong></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Drill-through (AC2, AC3, AC10, AC11, AC12, AC13, AC14) -->
+  <section class="screen" id="screen-drill" data-screen="drill" hidden>
+    <button class="breadcrumb-back" id="drillBackBtn">&larr; Back to Dashboard</button>
+    <div class="drill-heading">
+      <h1 id="drillTitle">Filtered defects</h1>
+      <span class="text-muted text-sm" id="drillCount"></span>
+    </div>
+    <div class="drill-note">
+      <span>🔒 Read-only list — no status or edit controls. Sourced from the chart selection; no other filters can be applied here.</span>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data-table" id="drillTable">
+        <thead>
+          <tr>
+            <th class="sortable" data-key="id">ID <span class="sort-indicator"></span></th>
+            <th class="sortable" data-key="title">Title <span class="sort-indicator"></span></th>
+            <th class="sortable" data-key="severity">Severity <span class="sort-indicator"></span></th>
+            <th class="sortable" data-key="status">Status <span class="sort-indicator"></span></th>
+            <th class="sortable" data-key="created">Created <span class="sort-indicator"></span></th>
+            <th class="sortable" data-key="updated">Updated <span class="sort-indicator"></span></th>
+          </tr>
+        </thead>
+        <tbody id="drillTbody"></tbody>
+      </table>
+      <div class="pagination" id="drillPagination"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Read-only defect detail modal (AC3) -->
+<div class="modal-overlay" id="modalOverlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-header">
+      <h3 id="modalTitle">DEF-0000</h3>
+      <button class="icon-btn" aria-label="Close" id="modalCloseIconBtn">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <span class="text-xs text-muted">Read-only — no edit or status controls available here.</span>
+      <button class="btn btn-secondary btn-sm" id="modalCloseBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/chartLayout.js"></script>
+<script src="/js/pagination.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/dashboard.js"></script>
+<script src="/js/drillThrough.js"></script>
+</body>
+</html>

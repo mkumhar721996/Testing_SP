@@ -1,0 +1,14 @@
+{
+  "name": "defect-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Read-only manager Defect Dashboard with drill-through defect lists.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test test/unit test/api"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -105,4 +105,32 @@
   /* ---------------------------------------------------------------- */
   --transition-fast: 120ms ease;
   --transition-base: 200ms ease;
+
+  /* ---------------------------------------------------------------- */
+  /* Severity scale (approved TESTING-SP-STORY-003 design prototype;   */
+  /* color values carried over exactly under the project's --color-   */
+  /* naming convention)                                                */
+  /* ---------------------------------------------------------------- */
+  --color-sev-critical: #b3261e;
+  --color-sev-critical-subtle: #fbe6e4;
+  --color-sev-high: #b1590f;
+  --color-sev-high-subtle: #fbebdb;
+  --color-sev-medium: #92700a;
+  --color-sev-medium-subtle: #faf1d9;
+  --color-sev-low: #3d6e93;
+  --color-sev-low-subtle: #e4eef6;
+
+  /* ---------------------------------------------------------------- */
+  /* Status scale (same source as the severity scale above)            */
+  /* ---------------------------------------------------------------- */
+  --color-stat-new: #3454d1;
+  --color-stat-new-subtle: #e7ecfd;
+  --color-stat-progress: #74409e;
+  --color-stat-progress-subtle: #f0e7f6;
+  --color-stat-resolved: #1f8f5f;
+  --color-stat-resolved-subtle: #e2f5ec;
+  --color-stat-reopened: #a3247a;
+  --color-stat-reopened-subtle: #f8e5f1;
+  --color-stat-closed: #5b6377;
+  --color-stat-closed-subtle: #eaecf1;
 }
