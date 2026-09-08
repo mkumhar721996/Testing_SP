@@ -89,6 +89,22 @@ test('the status badge reflects the current status and uses the design token chi
   assert.match(html, /<span class="chip chip-warning status-badge">Fixed<\/span>/);
 });
 
+test('security: a defect id containing a quote cannot break out of the data-defect-id attribute', () => {
+  const maliciousId = 'DEF-1" onclick="alert(1)';
+  const html = renderDefectDetail({ defect: baseDefect({ id: maliciousId }), role: 'developer' });
+  assert.doesNotMatch(html, /data-defect-id="DEF-1" onclick=/);
+  assert.match(html, /data-defect-id="DEF-1&quot; onclick=&quot;alert\(1\)"/);
+});
+
+test('security: reporter/assignee/created values with quotes or apostrophes are escaped, not injected raw', () => {
+  const html = renderDefectDetail({
+    defect: baseDefect({ reporter: `Mallory" onmouseover="alert('xss')` }),
+    role: 'developer',
+  });
+  assert.doesNotMatch(html, /onmouseover="alert/);
+  assert.match(html, /Mallory&quot; onmouseover=&quot;alert\(&#39;xss&#39;\)/);
+});
+
 test('AC9: the previous status label is not shown as the current status badge after a status change', () => {
   const openHtml = renderDefectDetail({ defect: baseDefect({ status: 'open' }), role: 'developer' });
   assert.match(openHtml, /<span class="chip status-badge">Open<\/span>/);
