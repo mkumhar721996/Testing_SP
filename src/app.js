@@ -32,11 +32,29 @@ function parseCookies(req) {
   return cookies;
 }
 
-function readJsonBody(req) {
+const MAX_JSON_BODY_BYTES = 10 * 1024; // 10KB — generous for any {role} style payload this app accepts
+
+function readJsonBody(req, maxBytes = MAX_JSON_BODY_BYTES) {
   return new Promise((resolve, reject) => {
     let data = '';
-    req.on('data', (chunk) => { data += chunk; });
+    let size = 0;
+    let rejected = false;
+
+    req.on('data', (chunk) => {
+      if (rejected) return;
+      size += chunk.length;
+      if (size > maxBytes) {
+        rejected = true;
+        data = ''; // drop what we've buffered so far; further chunks are ignored below
+        const err = new Error('Request body too large');
+        err.statusCode = 413;
+        reject(err);
+        return;
+      }
+      data += chunk;
+    });
     req.on('end', () => {
+      if (rejected) return;
       if (!data) return resolve({});
       try {
         resolve(JSON.parse(data));
@@ -44,7 +62,9 @@ function readJsonBody(req) {
         reject(err);
       }
     });
-    req.on('error', reject);
+    req.on('error', (err) => {
+      if (!rejected) reject(err);
+    });
   });
 }
 
@@ -148,6 +168,10 @@ function createApp({ store, sessions }) {
 
       sendJson(res, 404, { error: 'Not found' });
     } catch (err) {
+      if (err && err.statusCode === 413) {
+        sendJson(res, 413, { error: 'Request body too large' });
+        return;
+      }
       sendJson(res, 500, { error: 'Internal error' });
     }
   };
