@@ -340,6 +340,48 @@ hr, .divider {
   border-color: var(--color-danger-subtle);
 }
 
+.chip-sev-critical {
+  background: var(--color-sev-critical-subtle);
+  color: var(--color-sev-critical);
+  border-color: var(--color-sev-critical-subtle);
+}
+
+.chip-sev-high {
+  background: var(--color-sev-high-subtle);
+  color: var(--color-sev-high);
+  border-color: var(--color-sev-high-subtle);
+}
+
+.chip-sev-medium {
+  background: var(--color-sev-medium-subtle);
+  color: var(--color-sev-medium);
+  border-color: var(--color-sev-medium-subtle);
+}
+
+.chip-sev-low {
+  background: var(--color-sev-low-subtle);
+  color: var(--color-sev-low);
+  border-color: var(--color-sev-low-subtle);
+}
+
+.chip-status-open {
+  background: var(--color-primary-subtle);
+  color: var(--color-primary-active);
+  border-color: var(--color-primary-subtle);
+}
+
+.chip-status-progress {
+  background: var(--color-warning-subtle);
+  color: var(--color-warning);
+  border-color: var(--color-warning-subtle);
+}
+
+.chip-new {
+  background: var(--color-success-subtle);
+  color: var(--color-success);
+  border-color: var(--color-success-subtle);
+}
+
 /* ---------------------------------------------------------------- */
 /* Forms                                                              */
 /* ---------------------------------------------------------------- */
@@ -397,8 +439,11 @@ hr, .divider {
   cursor: not-allowed;
 }
 
-.input-error {
+.input-error,
+.textarea-error,
+.select-error {
   border-color: var(--color-danger);
+  background: var(--color-danger-subtle);
 }
 
 .field-hint {
@@ -406,9 +451,28 @@ hr, .divider {
   color: var(--color-fg-muted);
 }
 
+.field-counter {
+  font-size: var(--font-size-xs);
+  color: var(--color-fg-muted);
+  align-self: flex-end;
+}
+
+.field-counter.over-limit {
+  color: var(--color-danger);
+  font-weight: var(--font-weight-medium);
+}
+
 .field-error {
   font-size: var(--font-size-xs);
   color: var(--color-danger);
+  font-weight: var(--font-weight-medium);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.field-error::before {
+  content: "\26A0";
 }
 
 .checkbox-row,
@@ -425,4 +489,240 @@ hr, .divider {
   accent-color: var(--color-primary);
   width: 1rem;
   height: 1rem;
+}
+
+/* ---------------------------------------------------------------- */
+/* Tables                                                             */
+/* ---------------------------------------------------------------- */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.table th {
+  text-align: left;
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-fg-muted);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: var(--border-width-sm) solid var(--color-border);
+}
+
+.table td {
+  padding: var(--space-3);
+  border-bottom: var(--border-width-sm) solid var(--color-border);
+  vertical-align: middle;
+}
+
+.table tr.row-new {
+  background: var(--color-success-subtle);
+}
+
+.table tr:hover {
+  background: var(--color-bg-subtle);
+}
+
+/* ---------------------------------------------------------------- */
+/* Demo toolbar (reviewer/dev-only affordance, never shipped to      */
+/* production builds)                                                */
+/* ---------------------------------------------------------------- */
+
+.demo-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--color-bg-subtle);
+  border: var(--border-width-sm) dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+}
+
+.demo-toolbar .demo-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  width: 100%;
+}
+
+/* ---------------------------------------------------------------- */
+/* Alerts                                                             */
+/* ---------------------------------------------------------------- */
+
+.alert {
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-4);
+  border: var(--border-width-sm) solid transparent;
+}
+
+.alert-danger {
+  background: var(--color-danger-subtle);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+.alert-info {
+  background: var(--color-primary-subtle);
+  border-color: var(--color-primary);
+  color: var(--color-primary-active);
+}
+
+.alert-success {
+  background: var(--color-success-subtle);
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+/* ---------------------------------------------------------------- */
+/* Required field marker                                             */
+/* ---------------------------------------------------------------- */
+
+.required-mark {
+  color: var(--color-danger);
+  margin-left: 2px;
+}
+
+/* ---------------------------------------------------------------- */
+/* App shell (sidebar + topbar navigation)                           */
+/* ---------------------------------------------------------------- */
+
+.app-shell {
+  display: flex;
+  min-height: calc(100vh - 44px);
+}
+
+.app-sidebar {
+  width: 15rem;
+  flex-shrink: 0;
+  background: var(--color-surface);
+  border-right: var(--border-width-sm) solid var(--color-border);
+  padding: var(--space-4) var(--space-3);
+}
+
+.app-sidebar .brand {
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--space-4);
+  color: var(--color-primary);
+}
+
+.app-nav-item {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--space-1);
+  cursor: pointer;
+  user-select: none;
+}
+
+.app-nav-item:hover {
+  background: var(--color-bg-subtle);
+  color: var(--color-fg);
+}
+
+.app-nav-item.active {
+  background: var(--color-primary-subtle);
+  color: var(--color-primary-active);
+}
+
+.app-nav-item.disabled {
+  color: var(--color-border-strong);
+  cursor: not-allowed;
+}
+
+.app-main {
+  flex: 1;
+  padding: var(--space-5) var(--space-5);
+}
+
+.app-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-5);
+  border-bottom: var(--border-width-sm) solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+}
+
+.user-chip .avatar {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-fg-on-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-xs);
+}
+
+.user-chip .role-tag {
+  font-size: var(--font-size-xs);
+  color: var(--color-fg-muted);
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  padding: 0;
+  font-family: var(--font-family-base);
+}
+
+.link-btn:hover {
+  text-decoration: underline;
+}
+
+/* ---------------------------------------------------------------- */
+/* Centered auth pages (login / redirecting)                         */
+/* ---------------------------------------------------------------- */
+
+.center-page {
+  min-height: calc(100vh - 44px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+}
+
+.center-card {
+  width: 26rem;
+  max-width: 100%;
+}
+
+.spinner {
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-primary-subtle);
+  border-top-color: var(--color-primary);
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

@@ -25,25 +25,37 @@
 
   /* ---------------------------------------------------------------- */
   /* Color: brand / semantic                                          */
+  /* Values below match the approved TESTING-SP-STORY-001 prototype   */
+  /* (indigo brand), which is this project's baseline design system.  */
   /* ---------------------------------------------------------------- */
-  --color-primary: #2454e0;
-  --color-primary-hover: #1c3fb8;
-  --color-primary-active: #17348f;
-  --color-primary-subtle: #e8edfc;
+  --color-primary: #4338ca;
+  --color-primary-hover: #3730a3;
+  --color-primary-active: #312e81;
+  --color-primary-subtle: #e6e4fb;
 
-  --color-success: #1c7c3d;
-  --color-success-subtle: #e4f5e9;
-  --color-warning: #92600a;
-  --color-warning-subtle: #fbf0dc;
-  --color-danger: #b3261e;
-  --color-danger-subtle: #fbe9e7;
+  --color-success: #15803d;
+  --color-success-subtle: #dcf3e3;
+  --color-warning: #b45309;
+  --color-warning-subtle: #fbe9d0;
+  --color-danger: #b91c1c;
+  --color-danger-subtle: #fbe2e2;
+
+  /* Severity scale (distinct from the status semantics above) */
+  --color-sev-critical: #b91c1c;
+  --color-sev-critical-subtle: #fbe2e2;
+  --color-sev-high: #c2410c;
+  --color-sev-high-subtle: #fde3d3;
+  --color-sev-medium: #a16207;
+  --color-sev-medium-subtle: #faf0cd;
+  --color-sev-low: #475569;
+  --color-sev-low-subtle: #e4e7ee;
 
   /* ---------------------------------------------------------------- */
   /* Color: borders & focus                                           */
   /* ---------------------------------------------------------------- */
-  --color-border: #d7dade;
-  --color-border-strong: #b4b9c0;
-  --color-focus-ring: #2454e0;
+  --color-border: #d8dbe3;
+  --color-border-strong: #b7bccb;
+  --color-focus-ring: #8b83f0;
 
   /* ---------------------------------------------------------------- */
   /* Color: shadow (kept as full rgba tokens so components never      */
