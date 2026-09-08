@@ -1,0 +1,14 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Testing SP frontend",
+  "type": "module",
+  "scripts": {
+    "start": "node server.ts",
+    "dev": "node --watch server.ts",
+    "test": "node --test"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
