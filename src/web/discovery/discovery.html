@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Find a restaurant</title>
+    <link rel="stylesheet" href="../../../docs/design/tokens.css" />
+    <link rel="stylesheet" href="../../../docs/design/prototype-utils.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Find a restaurant</h1>
+      <form id="search-form" class="row">
+        <div class="form-group" style="flex: 1">
+          <label class="label" for="search-input">Search by name or cuisine</label>
+          <input
+            id="search-input"
+            class="input"
+            type="search"
+            placeholder="e.g. Burger, Mexican"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+      </form>
+      <div id="search-results" class="section" data-testid="search-results"></div>
+    </main>
+    <script type="module">
+      import { initDiscoveryController } from "./discoveryController.js";
+
+      initDiscoveryController({
+        formEl: document.getElementById("search-form"),
+        inputEl: document.getElementById("search-input"),
+        resultsEl: document.getElementById("search-results"),
+        onSelect: (restaurantId) => {
+          window.location.href = `/restaurants/${restaurantId}`;
+        },
+      });
+    </script>
+  </body>
+</html>
