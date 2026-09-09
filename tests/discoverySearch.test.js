@@ -19,6 +19,7 @@ async function loginAndGetCookie(baseUrl) {
     redirect: 'manual',
   });
   const setCookie = res.headers.get('set-cookie');
+  assert(setCookie, 'Expected Set-Cookie header');
   return setCookie.split(';')[0];
 }
 

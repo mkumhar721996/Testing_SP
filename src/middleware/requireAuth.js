@@ -1,5 +1,6 @@
 const { parseCookies } = require('../cookies');
 const { SESSION_COOKIE_NAME, getSession } = require('../session');
+const { log, getRequestId } = require('../logger');
 
 /**
  * Guards a handler behind an authenticated session. If there is no valid
@@ -10,10 +11,19 @@ const { SESSION_COOKIE_NAME, getSession } = require('../session');
 function requireAuth(req, res) {
   const cookies = parseCookies(req.headers.cookie);
   const session = getSession(cookies[SESSION_COOKIE_NAME]);
+  const requestId = getRequestId(req);
 
   if (session && session.username) {
+    log('info', 'auth.access.granted', {
+      requestId,
+      username: session.username,
+      loginRequestId: session.loginRequestId,
+      path: req.url,
+    });
     return true;
   }
+
+  log('warn', 'auth.access.denied', { requestId, username: 'anonymous', path: req.url });
 
   const redirectTo = encodeURIComponent(req.url);
   res.writeHead(302, { Location: `/login?redirectTo=${redirectTo}` });

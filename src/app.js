@@ -12,19 +12,30 @@ const DESIGN_CONTENT_TYPES = {
   '.css': 'text/css',
 };
 
+// Cache design assets in memory at startup (same approach as the
+// discoveryHtml/loginTemplate caches below) so serving them never blocks the
+// event loop on synchronous file I/O per request.
+const DESIGN_ASSET_CACHE = new Map();
+for (const fileName of fs.readdirSync(DESIGN_DIR)) {
+  const ext = path.extname(fileName);
+  if (DESIGN_CONTENT_TYPES[ext]) {
+    DESIGN_ASSET_CACHE.set(fileName, fs.readFileSync(path.join(DESIGN_DIR, fileName), 'utf8'));
+  }
+}
+
 function serveDesignAsset(pathname, res) {
   const fileName = path.basename(pathname);
   const ext = path.extname(fileName);
-  const filePath = path.join(DESIGN_DIR, fileName);
+  const content = DESIGN_ASSET_CACHE.get(fileName);
 
-  if (!DESIGN_CONTENT_TYPES[ext] || !fs.existsSync(filePath)) {
+  if (!DESIGN_CONTENT_TYPES[ext] || content === undefined) {
     res.writeHead(404, { 'Content-Type': 'text/plain' });
     res.end('Not Found');
     return;
   }
 
   res.writeHead(200, { 'Content-Type': DESIGN_CONTENT_TYPES[ext] });
-  res.end(fs.readFileSync(filePath, 'utf8'));
+  res.end(content);
 }
 
 function app(req, res) {

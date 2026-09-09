@@ -1,3 +1,5 @@
+const { log } = require('./logger');
+
 function parseCookies(header) {
   const cookies = {};
   if (!header) return cookies;
@@ -6,7 +8,12 @@ function parseCookies(header) {
     if (idx === -1) continue;
     const key = part.slice(0, idx).trim();
     const value = part.slice(idx + 1).trim();
-    if (key) cookies[key] = decodeURIComponent(value);
+    if (!key) continue;
+    try {
+      cookies[key] = decodeURIComponent(value);
+    } catch {
+      log('warn', 'cookie.parse.failed', { key });
+    }
   }
   return cookies;
 }
