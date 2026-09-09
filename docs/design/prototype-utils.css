@@ -426,3 +426,23 @@ hr, .divider {
   width: 1rem;
   height: 1rem;
 }
+
+/* ---------------------------------------------------------------- */
+/* Inline error banner                                               */
+/* ---------------------------------------------------------------- */
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-danger-subtle);
+  border: var(--border-width-sm) solid var(--color-danger);
+  color: var(--color-danger);
+}
+
+.error-banner p {
+  margin: 0;
+}
