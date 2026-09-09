@@ -1,10 +1,12 @@
-const TEST_USER = {
-  username: 'testuser',
-  password: 'test-password',
-};
-
 function validateCredentials(username, password) {
-  return username === TEST_USER.username && password === TEST_USER.password;
+  const testUsername = process.env.TEST_USER_USERNAME;
+  const testPassword = process.env.TEST_USER_PASSWORD;
+
+  return (
+    Boolean(testUsername && testPassword) &&
+    username === testUsername &&
+    password === testPassword
+  );
 }
 
 module.exports = { validateCredentials };

@@ -1,6 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 const url = require('url');
+
+process.loadEnvFile(path.join(__dirname, '../.env'));
+
 const { handleDiscovery } = require('./routes/discoveryRouter');
 const { handleGetLogin, handlePostLogin } = require('./routes/authRouter');
 
