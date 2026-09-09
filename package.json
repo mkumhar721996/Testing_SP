@@ -1,0 +1,11 @@
+{
+  "name": "testing-sp",
+  "version": "1.0.0",
+  "description": "Authentication gate for the discovery flow",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test tests/"
+  },
+  "license": "ISC"
+}

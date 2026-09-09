@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Log in</title>
+  <link rel="stylesheet" href="/design/tokens.css" />
+  <link rel="stylesheet" href="/design/prototype-utils.css" />
+</head>
+<body>
+  <main class="container">
+    <section class="card">
+      <div class="card-body stack">
+        <h1>Log in</h1>
+        {{error}}
+        <form method="POST" action="/login">
+          <input type="hidden" name="redirectTo" value="{{redirectTo}}" />
+          <div class="form-group">
+            <label class="label" for="username">Username</label>
+            <input class="input" type="text" id="username" name="username" />
+          </div>
+          <div class="form-group">
+            <label class="label" for="password">Password</label>
+            <input class="input" type="password" id="password" name="password" />
+          </div>
+          <button class="btn btn-primary" type="submit">Log in</button>
+        </form>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
