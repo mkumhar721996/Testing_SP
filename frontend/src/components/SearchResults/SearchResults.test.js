@@ -43,18 +43,16 @@ function flushMicrotasks() {
 }
 
 test('fetches and appends the next page when the bottom sentinel intersects the viewport', async () => {
-  const pageSize = 20;
   const page2Items = makeResults(20, 20);
   let calls = [];
   const component = createSearchResults({
     initialResults: makeResults(20, 0),
     initialCursor: 20,
     initialHasMore: true,
-    fetchPage: (cursor, size) => {
-      calls.push([cursor, size]);
+    fetchPage: (cursor) => {
+      calls.push([cursor]);
       return Promise.resolve({ items: page2Items, nextCursor: null });
     },
-    pageSize,
   });
 
   const observer = component.observeSentinel({}, FakeIntersectionObserver);
@@ -62,13 +60,12 @@ test('fetches and appends the next page when the bottom sentinel intersects the 
   await flushMicrotasks();
 
   assert.equal(calls.length, 1);
-  assert.deepEqual(calls[0], [20, pageSize]);
+  assert.deepEqual(calls[0], [20]);
   assert.equal(component.getState().results.length, 40);
   assert.equal(component.getState().results[20].id, 20);
 });
 
 test('continues fetching and appending successive pages (page 2, then page 3) as the sentinel keeps intersecting, advancing the cursor each time', async () => {
-  const pageSize = 10;
   const pages = {
     10: { items: makeResults(10, 10), nextCursor: 20 },
     20: { items: makeResults(5, 20), nextCursor: null },
@@ -78,11 +75,10 @@ test('continues fetching and appending successive pages (page 2, then page 3) as
     initialResults: makeResults(10, 0),
     initialCursor: 10,
     initialHasMore: true,
-    fetchPage: (cursor, size) => {
-      calls.push([cursor, size]);
+    fetchPage: (cursor) => {
+      calls.push([cursor]);
       return Promise.resolve(pages[cursor]);
     },
-    pageSize,
   });
 
   const observer = component.observeSentinel({}, FakeIntersectionObserver);
@@ -97,28 +93,56 @@ test('continues fetching and appending successive pages (page 2, then page 3) as
   assert.equal(component.getState().results.length, 25);
   assert.equal(component.getState().hasMore, false);
 
-  assert.deepEqual(calls, [[10, pageSize], [20, pageSize]]);
+  assert.deepEqual(calls, [[10], [20]]);
 });
 
-test('requests each page with the configured page-size cap, never asking the server for more results than the cap', async () => {
-  const pageSize = 15;
-  let receivedSize = null;
+test('requests each page by cursor only, leaving the page-size cap entirely up to the server (AC9 is a server-side contract, not a client request parameter)', async () => {
+  const calls = [];
   const component = createSearchResults({
     initialResults: makeResults(15, 0),
     initialCursor: 15,
     initialHasMore: true,
-    fetchPage: (cursor, size) => {
-      receivedSize = size;
+    fetchPage: (...args) => {
+      calls.push(args);
       return Promise.resolve({ items: makeResults(15, 15), nextCursor: null });
     },
-    pageSize,
   });
 
   const observer = component.observeSentinel({}, FakeIntersectionObserver);
   observer.intersect();
   await flushMicrotasks();
 
-  assert.equal(receivedSize, pageSize);
+  assert.deepEqual(calls, [[15]]);
+});
+
+test('does not start a second fetch when the sentinel intersects again while a fetch is already in flight', async () => {
+  let calls = 0;
+  let resolveFetch;
+  const component = createSearchResults({
+    initialResults: makeResults(20, 0),
+    initialCursor: 20,
+    initialHasMore: true,
+    fetchPage: () => {
+      calls += 1;
+      return new Promise((resolve) => {
+        resolveFetch = resolve;
+      });
+    },
+  });
+
+  const observer = component.observeSentinel({}, FakeIntersectionObserver);
+  observer.intersect();
+  observer.intersect();
+  observer.intersect();
+  await flushMicrotasks();
+
+  assert.equal(calls, 1);
+
+  resolveFetch({ items: makeResults(5, 20), nextCursor: null });
+  await flushMicrotasks();
+
+  assert.equal(calls, 1);
+  assert.equal(component.getState().results.length, 25);
 });
 
 test('does not show a loading indicator before the sentinel has intersected for the first time', () => {
@@ -127,13 +151,14 @@ test('does not show a loading indicator before the sentinel has intersected for 
     initialCursor: 20,
     initialHasMore: true,
     fetchPage: () => Promise.resolve({ items: [], nextCursor: null }),
-    pageSize: 20,
   });
 
   const tree = component.render();
   const loadingNodes = findAll(tree, (n) => n.props && n.props['data-testid'] === 'loading-indicator');
+  const sentinelNodes = findAll(tree, (n) => n.props && n.props['data-testid'] === 'scroll-sentinel');
 
   assert.equal(loadingNodes.length, 0);
+  assert.equal(sentinelNodes[0].props['aria-hidden'], 'true');
 });
 
 test('shows a loading indicator at the bottom of the list while the next page is being fetched, and hides it once the fetch settles', async () => {
@@ -146,7 +171,6 @@ test('shows a loading indicator at the bottom of the list while the next page is
       new Promise((resolve) => {
         resolveFetch = resolve;
       }),
-    pageSize: 20,
   });
 
   const observer = component.observeSentinel({}, FakeIntersectionObserver);
@@ -155,6 +179,7 @@ test('shows a loading indicator at the bottom of the list while the next page is
   const duringFetchTree = component.render();
   const loadingDuringFetch = findAll(duringFetchTree, (n) => n.props && n.props['data-testid'] === 'loading-indicator');
   assert.equal(loadingDuringFetch.length, 1);
+  assert.equal(loadingDuringFetch[0].props['aria-live'], 'polite');
 
   resolveFetch({ items: makeResults(5, 20), nextCursor: null });
   await flushMicrotasks();
@@ -174,7 +199,6 @@ test('does not call fetch again when the sentinel intersects after all results h
       calls += 1;
       return Promise.resolve({ items: [], nextCursor: null });
     },
-    pageSize: 20,
   });
 
   const observer = component.observeSentinel({}, FakeIntersectionObserver);
@@ -195,7 +219,6 @@ test('does not call fetch again even when the sentinel intersects multiple times
       calls += 1;
       return Promise.resolve({ items: makeResults(5, 20), nextCursor: null });
     },
-    pageSize: 20,
   });
 
   const observer = component.observeSentinel({}, FakeIntersectionObserver);
@@ -218,7 +241,6 @@ test('renders no load-more button or pagination control once all results have be
     initialCursor: 20,
     initialHasMore: true,
     fetchPage: () => Promise.resolve({ items: makeResults(5, 20), nextCursor: null }),
-    pageSize: 20,
   });
 
   const observer = component.observeSentinel({}, FakeIntersectionObserver);
@@ -237,7 +259,6 @@ test('shows an inline error message with a Retry button at the bottom of the lis
     initialCursor: 20,
     initialHasMore: true,
     fetchPage: () => Promise.reject(new Error('Network error')),
-    pageSize: 20,
   });
 
   const observer = component.observeSentinel({}, FakeIntersectionObserver);
@@ -249,6 +270,8 @@ test('shows an inline error message with a Retry button at the bottom of the lis
   const retryButtons = findAll(tree, (n) => n.props && n.props['data-testid'] === 'retry-button');
 
   assert.equal(errorNodes.length, 1);
+  assert.equal(errorNodes[0].props['aria-live'], 'assertive');
+  assert.equal(errorNodes[0].props.role, 'alert');
   assert.equal(retryButtons.length, 1);
   assert.equal(component.getState().loading, false);
 });
@@ -260,7 +283,6 @@ test('leaves previously rendered results unchanged, in the same order, when a su
     initialCursor: 20,
     initialHasMore: true,
     fetchPage: () => Promise.reject(new Error('Network error')),
-    pageSize: 20,
   });
 
   const observer = component.observeSentinel({}, FakeIntersectionObserver);
@@ -281,13 +303,12 @@ test('retries the same failed page fetch (same cursor) when the Retry button is 
     initialResults: makeResults(20, 0),
     initialCursor: 20,
     initialHasMore: true,
-    fetchPage: (cursor, size) => {
-      calls.push([cursor, size]);
+    fetchPage: (cursor) => {
+      calls.push([cursor]);
       attempt += 1;
       if (attempt === 1) return Promise.reject(new Error('Network error'));
       return Promise.resolve({ items: makeResults(5, 20), nextCursor: null });
     },
-    pageSize: 20,
   });
 
   const observer = component.observeSentinel({}, FakeIntersectionObserver);
@@ -298,7 +319,7 @@ test('retries the same failed page fetch (same cursor) when the Retry button is 
   retryButton.props.onClick();
   await flushMicrotasks();
 
-  assert.deepEqual(calls, [[20, 20], [20, 20]]);
+  assert.deepEqual(calls, [[20], [20]]);
   assert.equal(component.getState().error, null);
   assert.equal(component.getState().results.length, 25);
 });
@@ -309,7 +330,6 @@ test('keeps showing the error and Retry button if the retried fetch fails again'
     initialCursor: 20,
     initialHasMore: true,
     fetchPage: () => Promise.reject(new Error('Network error')),
-    pageSize: 20,
   });
 
   const observer = component.observeSentinel({}, FakeIntersectionObserver);
@@ -334,7 +354,6 @@ test('renders no pagination buttons or page-number controls when the initial res
     initialCursor: null,
     initialHasMore: false,
     fetchPage: () => Promise.resolve({ items: [], nextCursor: null }),
-    pageSize: 20,
   });
 
   const tree = component.render();

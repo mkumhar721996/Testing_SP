@@ -10,10 +10,16 @@ function renderTree(state, handlers) {
   const trailing = [];
 
   if (state.loading) {
-    trailing.push(h('div', { 'data-testid': 'loading-indicator' }, ['Loading more results…']));
+    trailing.push(
+      h(
+        'div',
+        { 'data-testid': 'loading-indicator', 'aria-live': 'polite' },
+        ['Loading more results…']
+      )
+    );
   } else if (state.error) {
     trailing.push(
-      h('div', { 'data-testid': 'load-more-error' }, [
+      h('div', { 'data-testid': 'load-more-error', 'aria-live': 'assertive', role: 'alert' }, [
         h('p', { 'data-testid': 'load-more-error-message' }, [state.error]),
         h(
           'button',
@@ -24,7 +30,7 @@ function renderTree(state, handlers) {
     );
   }
 
-  trailing.push(h('div', { 'data-testid': 'scroll-sentinel' }, []));
+  trailing.push(h('div', { 'data-testid': 'scroll-sentinel', 'aria-hidden': 'true' }, []));
 
   return h('div', { 'data-testid': 'search-results' }, [
     h('ul', { 'data-testid': 'results-list' }, resultItems),
@@ -32,12 +38,14 @@ function renderTree(state, handlers) {
   ]);
 }
 
+// `fetchPage` is injected by the caller and is the only seam where a real HTTP transport
+// (with concerns like trace-context propagation) would be wired in; no such transport exists
+// yet in this repo, so there is no outbound request here to attach headers to.
 function createSearchResults({
   initialResults = [],
   initialCursor = null,
   initialHasMore = false,
   fetchPage,
-  pageSize,
 }) {
   let state = {
     results: initialResults.slice(),
@@ -67,7 +75,7 @@ function createSearchResults({
     const cursorToFetch = state.cursor;
     setState({ loading: true, error: null });
 
-    return fetchPage(cursorToFetch, pageSize)
+    return fetchPage(cursorToFetch)
       .then((page) => {
         setState({
           results: state.results.concat(page.items),
