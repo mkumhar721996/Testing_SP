@@ -6,6 +6,17 @@ const { validateCredentials } = require('../users');
 
 const DEFAULT_REDIRECT = '/discovery';
 
+// Only allow same-site, single-path redirects (must start with exactly one
+// '/'); rejects absolute URLs and protocol-relative ("//host") targets that
+// would otherwise let an attacker-controlled redirectTo send a user off-site
+// after login.
+function sanitizeRedirectTarget(candidate) {
+  if (typeof candidate === 'string' && /^\/(?!\/)/.test(candidate)) {
+    return candidate;
+  }
+  return DEFAULT_REDIRECT;
+}
+
 const loginTemplate = fs.readFileSync(
   path.join(__dirname, '../../views/login.html'),
   'utf8'
@@ -21,7 +32,7 @@ function renderLogin(redirectTo, hasError) {
 }
 
 function handleGetLogin(req, res, query) {
-  const redirectTo = query.redirectTo || DEFAULT_REDIRECT;
+  const redirectTo = sanitizeRedirectTarget(query.redirectTo);
   res.writeHead(200, { 'Content-Type': 'text/html' });
   res.end(renderLogin(redirectTo, false));
 }
@@ -33,7 +44,7 @@ function handlePostLogin(req, res) {
   });
   req.on('end', () => {
     const form = querystring.parse(body);
-    const redirectTo = form.redirectTo || DEFAULT_REDIRECT;
+    const redirectTo = sanitizeRedirectTarget(form.redirectTo);
 
     if (validateCredentials(form.username, form.password)) {
       const sessionId = createSession({ username: form.username });

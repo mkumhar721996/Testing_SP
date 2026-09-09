@@ -36,3 +36,17 @@ test('Completing login redirects back to the originally requested discovery scre
   assert.equal(loginRes.status, 302);
   assert.equal(loginRes.headers.get('location'), originalUrl);
 });
+
+test('Login rejects an off-site redirectTo and falls back to discovery', async () => {
+  const loginRes = await fetch(`${baseUrl}/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `username=testuser&password=test-password&redirectTo=${encodeURIComponent(
+      '//evil.example.com/phish'
+    )}`,
+    redirect: 'manual',
+  });
+
+  assert.equal(loginRes.status, 302);
+  assert.equal(loginRes.headers.get('location'), '/discovery');
+});
