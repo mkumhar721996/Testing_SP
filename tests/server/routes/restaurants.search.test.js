@@ -14,11 +14,27 @@ function stopServer(server) {
   return new Promise((resolve) => server.close(resolve));
 }
 
-test("GET /api/restaurants/search returns ranked results with all display fields", async () => {
+const AUTH_HEADERS = { cookie: "session=logged-in-customer" };
+
+test("GET /api/restaurants/search rejects unauthenticated requests", async () => {
   const server = await startServer();
   try {
     const { port } = server.address();
     const response = await fetch(`http://localhost:${port}/api/restaurants/search?q=burger`);
+
+    assert.equal(response.status, 401);
+  } finally {
+    await stopServer(server);
+  }
+});
+
+test("GET /api/restaurants/search returns ranked results with all display fields", async () => {
+  const server = await startServer();
+  try {
+    const { port } = server.address();
+    const response = await fetch(`http://localhost:${port}/api/restaurants/search?q=burger`, {
+      headers: AUTH_HEADERS,
+    });
 
     assert.equal(response.status, 200);
     const body = await response.json();
@@ -43,6 +59,7 @@ test("GET /api/restaurants/search returns an empty results array when nothing ma
     const { port } = server.address();
     const response = await fetch(
       `http://localhost:${port}/api/restaurants/search?q=nonexistent-cuisine-xyz`,
+      { headers: AUTH_HEADERS },
     );
 
     assert.equal(response.status, 200);
@@ -57,7 +74,9 @@ test("GET /api/restaurants/search includes closed restaurants clearly marked as 
   const server = await startServer();
   try {
     const { port } = server.address();
-    const response = await fetch(`http://localhost:${port}/api/restaurants/search?q=burger`);
+    const response = await fetch(`http://localhost:${port}/api/restaurants/search?q=burger`, {
+      headers: AUTH_HEADERS,
+    });
     const body = await response.json();
 
     assert.ok(body.results.some((restaurant) => restaurant.isOpen === false));

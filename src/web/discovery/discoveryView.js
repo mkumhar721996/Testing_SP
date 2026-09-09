@@ -24,6 +24,30 @@ export function renderNoResults(container, { doc = document } = {}) {
   container.appendChild(message);
 }
 
+export function renderError(container, { doc = document } = {}) {
+  clear(container);
+  const message = doc.createElement("p");
+  message.classList.add("text-muted");
+  message.setAttribute("data-testid", "search-error");
+  message.setAttribute("role", "alert");
+  message.textContent = "Something went wrong loading restaurants. Please try again.";
+  container.appendChild(message);
+}
+
+function isValidRestaurant(restaurant) {
+  return (
+    restaurant &&
+    typeof restaurant.id !== "undefined" &&
+    typeof restaurant.name === "string" &&
+    typeof restaurant.cuisine === "string" &&
+    typeof restaurant.rating === "number" &&
+    Number.isFinite(restaurant.rating) &&
+    typeof restaurant.estimatedDeliveryMinutes === "number" &&
+    typeof restaurant.deliveryFeeCents === "number" &&
+    typeof restaurant.isOpen === "boolean"
+  );
+}
+
 export function renderResults(container, results, { onSelect, doc = document } = {}) {
   clear(container);
 
@@ -32,12 +56,29 @@ export function renderResults(container, results, { onSelect, doc = document } =
   list.setAttribute("data-testid", "restaurant-results");
 
   for (const restaurant of results) {
+    if (!isValidRestaurant(restaurant)) {
+      console.error(
+        JSON.stringify({
+          level: "error",
+          event: "invalid_restaurant_data",
+          restaurantId: restaurant && restaurant.id,
+        }),
+      );
+      continue;
+    }
+
     const card = doc.createElement("article");
     card.classList.add("card");
     card.setAttribute("data-testid", "restaurant-card");
     card.setAttribute("data-restaurant-id", String(restaurant.id));
     card.setAttribute("data-available", restaurant.isOpen ? "true" : "false");
-    if (!restaurant.isOpen) card.classList.add("card--unavailable");
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-label", restaurant.name);
+    card.setAttribute("tabindex", restaurant.isOpen ? "0" : "-1");
+    if (!restaurant.isOpen) {
+      card.classList.add("card--unavailable");
+      card.setAttribute("aria-disabled", "true");
+    }
 
     const header = doc.createElement("div");
     header.classList.add("card-header", "row");
@@ -72,7 +113,14 @@ export function renderResults(container, results, { onSelect, doc = document } =
     card.appendChild(body);
 
     if (restaurant.isOpen && typeof onSelect === "function") {
-      card.addEventListener("click", () => onSelect(restaurant.id));
+      const selectRestaurant = () => onSelect(restaurant.id);
+      card.addEventListener("click", selectRestaurant);
+      card.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          if (typeof event.preventDefault === "function") event.preventDefault();
+          selectRestaurant();
+        }
+      });
     }
 
     list.appendChild(card);

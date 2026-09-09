@@ -439,12 +439,6 @@ hr, .divider {
   }
 }
 
-.skeleton {
-  display: block;
-  background: var(--color-bg-subtle);
-  border-radius: var(--radius-sm);
-}
-
 .card--unavailable {
   opacity: 0.6;
 }

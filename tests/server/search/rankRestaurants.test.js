@@ -52,3 +52,10 @@ test("excludes restaurants that do not match the query at all", () => {
 
   assert.deepEqual(ranked, []);
 });
+
+test("returns no results for an empty or whitespace-only query (the discovery controller does not submit one)", () => {
+  const restaurants = [{ id: "1", name: "Sushi Circle", cuisine: "Japanese", rating: 4.0 }];
+
+  assert.deepEqual(rankRestaurants(restaurants, ""), []);
+  assert.deepEqual(rankRestaurants(restaurants, "   "), []);
+});
